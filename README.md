@@ -118,7 +118,7 @@ public function behaviors(): array
 ```php
 'urlManager' => [
     'rules' => [
-        ['pattern' => 'yandex_turbo', 'route' => 'yandex-turbo/yandex-turbo/index', 'suffix' => '.xml'],
+        ['pattern' => 'yandex_turbo', 'route' => 'yandexTurbo/yandex-turbo/index', 'suffix' => '.xml'],
     ],
 ],
 ```

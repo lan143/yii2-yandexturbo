@@ -116,7 +116,7 @@ class YandexTurbo extends Module
                 'generator' => 'lan143\yii2-yandexturbo',
                 'analytics' => ArrayHelper::getValue($channel, 'analytics'),
                 'adNetwork' => ArrayHelper::getValue($channel, 'adNetwork'),
-                'items' => $model->generateItems(),
+                'items' => $model->generateYandexTurboItems(),
             ];
         }
 

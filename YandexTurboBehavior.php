@@ -35,7 +35,7 @@ class YandexTurboBehavior extends Behavior
         }
     }
 
-    public function generateItems(): array
+    public function generateYandexTurboItems(): array
     {
         $result = [];
 
