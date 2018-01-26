@@ -79,7 +79,7 @@ Configuration
                 'title' => 'About page',
                 'link' => ['/about'],
                 'description' => 'This is about page',
-                'content' => 'Some content of about page, will be displayed in Yandex Turbo page',
+                'content' => 'Some content of about page, will be displayed in Yandex Turbo page. You can use <strong>html<strong> tags.',
                 'pubDate' => (new \DateTime('2018-01-26 18:57:00'))->format(\DateTime::RFC822)
             ],
         ],
@@ -128,3 +128,5 @@ public function behaviors(): array
     ],
 ],
 ```
+
+Now you can add http://siteexample.com/yandex_turbo.xml in Yandex Webmaster service.
