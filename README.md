@@ -44,17 +44,15 @@ Configuration
 'modules' => [
     'yandexTurbo' => [
         'class' => \lan143\yii2_yandexturbo\YandexTurbo::class,
-        'channels' => [
-            // one model per channel
-            [
-                'model' => \app\models\Records::class,
-            ],
+        'title' => 'Liftoff News', // not required, default Application name 
+        'link' => 'http://liftoff.msfc.nasa.gov/', // not required, default Url::home
+        'description' => 'Liftoff to Space Exploration.', // default empty
+        'language' => 'en-us', // not required, default Application language
+        'elements' => [
+            // only model class. Need behavior in model
+            \app\models\Records::class,
             // or configuration for creating a behavior
             [
-                'title' => 'Liftoff News', // not required, default Application name 
-                'link' => 'http://liftoff.msfc.nasa.gov/', // not required, default Url::home
-                'description' => 'Liftoff to Space Exploration.', // default empty
-                'language' => 'en-us', // not required, default Application language
                 'model' => [
                     'class' => \app\models\Records::class,
                     'behaviors' => [
@@ -75,6 +73,14 @@ Configuration
                         ],
                     ],
                 ],
+            ],
+            // or configure static content
+            [
+                'title' => 'About page',
+                'link' => '/about',
+                'description' => 'This is about page',
+                'content' => 'Some content of about page, will be displayed in Yandex Turbo page',
+                'pubDate' => (new \DateTime('2018-01-26 18:57:00'))->format(\DateTime::RFC822)
             ],
         ],
         'cacheExpire' => 1, // 1 second. Default is 15 minutes

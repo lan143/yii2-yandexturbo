@@ -17,6 +17,8 @@ use yii\helpers\Url;
  */
 class YandexTurbo extends Module
 {
+    const GENERATOR_NAME = 'lan143\yii2-yandexturbo';
+
     /**
      * @var string
      */
@@ -38,9 +40,39 @@ class YandexTurbo extends Module
     public $cacheKey = 'yandexTurbo';
 
     /**
+     * @var string
+     */
+    public $title;
+
+    /**
+     * @var string
+     */
+    public $link;
+
+    /**
+     * @var string
+     */
+    public $description;
+
+    /**
+     * @var string
+     */
+    public $language;
+
+    /**
+     * @var string
+     */
+    public $analytics;
+
+    /**
+     * @var string
+     */
+    public $adNetwork;
+
+    /**
      * @var array
      */
-    public $channels = [];
+    public $elements = [];
 
     /**
      * @inheritdoc
@@ -56,6 +88,18 @@ class YandexTurbo extends Module
 
         if (!$this->cacheProvider instanceof Cache) {
             throw new InvalidConfigException('Invalid `cacheKey` parameter was specified.');
+        }
+
+        if (empty($this->title)) {
+            $this->title = Yii::$app->name;
+        }
+
+        if (empty($this->link)) {
+            $this->link = Url::home(true);
+        }
+
+        if (empty($this->language)) {
+            $this->language = Yii::$app->language;
         }
     }
 
@@ -88,48 +132,50 @@ class YandexTurbo extends Module
      */
     protected function buildRssFeed(): string
     {
-        $channels = [];
+        $items = [];
 
-        foreach ($this->channels as $channel) {
-            if (is_array($channel['model'])) {
-                $model = Yii::createObject([
-                    'class' => $channel['model']['class']
-                ]);
+        foreach ($this->elements as $element) {
+            if (is_array($element)) {
+                if (isset($element['model'])) {
+                    $model = Yii::createObject([
+                        'class' => $element['model']['class']
+                    ]);
 
-                if (isset($channel['model']['behaviors'])) {
-                    $model->attachBehaviors($channel['behaviors']);
+                    if (isset($element['model']['behaviors'])) {
+                        $model->attachBehaviors($element['behaviors']);
+                    }
+                } else {
+                    $items[] = [
+                        'title' => ArrayHelper::getValue($element, 'title'),
+                        'link' => ArrayHelper::getValue($element, 'link'),
+                        'description' => ArrayHelper::getValue($element, 'description'),
+                        'content' => ArrayHelper::getValue($element, 'content'),
+                        'pubDate' => ArrayHelper::getValue($element, 'pubDate'),
+                    ];
+
+                    continue;
                 }
-            } elseif (is_string($channel['model'])) {
+            } elseif (is_string($element)) {
                 $model = Yii::createObject([
-                    'class' => $channel['model'],
+                    'class' => $element,
                 ]);
             } else {
                 throw new InvalidConfigException('You must set model variable or unsupported model type');
             }
 
-            $channels[] = [
-                'title' => ArrayHelper::getValue($channel, 'title', Yii::$app->name),
-                'link' => ArrayHelper::getValue($channel, 'link', Url::home(true)),
-                'description' => ArrayHelper::getValue($channel, 'description'),
-                'language' => ArrayHelper::getValue($channel, 'language', Yii::$app->language),
-                'lastBuildDate' => (new DateTime())->format(DateTime::RFC822),
-                'generator' => 'lan143\yii2-yandexturbo',
-                'analytics' => ArrayHelper::getValue($channel, 'analytics'),
-                'adNetwork' => ArrayHelper::getValue($channel, 'adNetwork'),
-                'items' => $model->generateYandexTurboItems(),
-            ];
+            $items = ArrayHelper::merge($items, $model->generateYandexTurboItems());
         }
 
-        $xml = $this->buildRssXml($channels);
+        $xml = $this->buildRssXml($items);
 
         return $xml;
     }
 
     /**
-     * @param array $channels
+     * @param array $elements
      * @return string
      */
-    protected function buildRssXml(array $channels): string
+    protected function buildRssXml(array $elements): string
     {
         $doc = new DOMDocument("1.0", "utf-8");
 
@@ -140,61 +186,59 @@ class YandexTurbo extends Module
         $root->setAttribute('xmlns:turbo', 'http://turbo.yandex.ru');
         $doc->appendChild($root);
 
-        foreach ($channels as $channel) {
-            $channelNode = $doc->createElement("channel");
-            $root->appendChild($channelNode);
+        $channelNode = $doc->createElement("channel");
+        $root->appendChild($channelNode);
 
-            $titleNode = $doc->createElement("title", $channel['title']);
-            $channelNode->appendChild($titleNode);
+        $titleNode = $doc->createElement("title", $this->title);
+        $channelNode->appendChild($titleNode);
 
-            $linkNode = $doc->createElement("link", $channel['link']);
-            $channelNode->appendChild($linkNode);
+        $linkNode = $doc->createElement("link", $this->link);
+        $channelNode->appendChild($linkNode);
 
-            $descriptionNode = $doc->createElement("description", $channel['description']);
-            $channelNode->appendChild($descriptionNode);
+        $descriptionNode = $doc->createElement("description", $this->description);
+        $channelNode->appendChild($descriptionNode);
 
-            $languageNode = $doc->createElement("language", $channel['language']);
-            $channelNode->appendChild($languageNode);
+        $languageNode = $doc->createElement("language", $this->language);
+        $channelNode->appendChild($languageNode);
 
-            $lastBuildDateNode = $doc->createElement("lastBuildDate", $channel['lastBuildDate']);
-            $channelNode->appendChild($lastBuildDateNode);
+        $lastBuildDateNode = $doc->createElement("lastBuildDate", (new DateTime())->format(DateTime::RFC822));
+        $channelNode->appendChild($lastBuildDateNode);
 
-            $generatorNode = $doc->createElement("generator", $channel['generator']);
-            $channelNode->appendChild($generatorNode);
+        $generatorNode = $doc->createElement("generator", self::GENERATOR_NAME);
+        $channelNode->appendChild($generatorNode);
 
-            if (!empty($channel['analytics'])) {
-                $analyticsNode = $doc->createElement("yandex:analytics", $channel['analytics']);
-                $channelNode->appendChild($analyticsNode);
-            }
+        if (!empty($this->analytics)) {
+            $analyticsNode = $doc->createElement("yandex:analytics", $this->analytics);
+            $channelNode->appendChild($analyticsNode);
+        }
 
-            if (!empty($channel['adNetwork'])) {
-                $adNetworkNode = $doc->createElement("yandex:adNetwork", $channel['adNetwork']);
-                $channelNode->appendChild($adNetworkNode);
-            }
+        if (!empty($this->adNetwork)) {
+            $adNetworkNode = $doc->createElement("yandex:adNetwork", $this->adNetwork);
+            $channelNode->appendChild($adNetworkNode);
+        }
 
-            foreach ($channel['items'] as $item) {
-                $itemNode = $doc->createElement("item");
-                $itemNode->setAttribute('turbo', 'true');
-                $channelNode->appendChild($itemNode);
+        foreach ($elements as $element) {
+            $itemNode = $doc->createElement("item");
+            $itemNode->setAttribute('turbo', 'true');
+            $channelNode->appendChild($itemNode);
 
-                $itemTitleNode = $doc->createElement("title", $item['title']);
-                $itemNode->appendChild($itemTitleNode);
+            $itemTitleNode = $doc->createElement("title", $element['title']);
+            $itemNode->appendChild($itemTitleNode);
 
-                $itemLinkNode = $doc->createElement("link", $item['link']);
-                $itemNode->appendChild($itemLinkNode);
+            $itemLinkNode = $doc->createElement("link", $element['link']);
+            $itemNode->appendChild($itemLinkNode);
 
-                $itemDescriptionNode = $doc->createElement("description", $item['description']);
-                $itemNode->appendChild($itemDescriptionNode);
+            $itemDescriptionNode = $doc->createElement("description", $element['description']);
+            $itemNode->appendChild($itemDescriptionNode);
 
-                $itemContentNode = $doc->createElement("turbo:content");
-                $itemNode->appendChild($itemContentNode);
+            $itemContentNode = $doc->createElement("turbo:content");
+            $itemNode->appendChild($itemContentNode);
 
-                $contentWrapper = $doc->createCDATASection($item['content']);
-                $itemContentNode->appendChild($contentWrapper);
+            $contentWrapper = $doc->createCDATASection($element['content']);
+            $itemContentNode->appendChild($contentWrapper);
 
-                $itemPubDateNode = $doc->createElement("pubDate", $item['pubDate']);
-                $itemNode->appendChild($itemPubDateNode);
-            }
+            $itemPubDateNode = $doc->createElement("pubDate", $element['pubDate']);
+            $itemNode->appendChild($itemPubDateNode);
         }
 
         return $doc->saveXML();
