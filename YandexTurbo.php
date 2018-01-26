@@ -136,12 +136,12 @@ class YandexTurbo extends Module
 
         foreach ($this->elements as $element) {
             if (is_array($element)) {
-                if (isset($element['model'])) {
+                if (isset($element['class'])) {
                     $model = Yii::createObject([
-                        'class' => $element['model']['class']
+                        'class' => $element['class']
                     ]);
 
-                    if (isset($element['model']['behaviors'])) {
+                    if (isset($element['behaviors'])) {
                         $model->attachBehaviors($element['behaviors']);
                     }
                 } else {

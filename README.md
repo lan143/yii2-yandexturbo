@@ -53,24 +53,22 @@ Configuration
             \app\models\Records::class,
             // or configuration for creating a behavior
             [
-                'model' => [
-                    'class' => \app\models\Records::class,
-                    'behaviors' => [
-                        'yandexTurbo' => [
-                            'class' => \lan143\yii2_yandexturbo\YandexTurboBehavior::class,
-                            'scope' => function (\yii\db\ActiveQuery $query) {
-                                $query->orderBy(['created_at' => SORT_DESC]);
-                            },
-                            'dataClosure' => function (\app\models\Records $model) {
-                                return [
-                                    'title' => $model->title,
-                                    'link' => \yii\helpers\Url::to(['records/view', 'id' => $model->id], true),
-                                    'description' => $model->description,
-                                    'content' => $model->content,
-                                    'pubDate' => (new \DateTime($this->created_at))->format(\DateTime::RFC822),
-                                ];
-                            }
-                        ],
+                'class' => \app\models\Records::class,
+                'behaviors' => [
+                    'yandexTurbo' => [
+                        'class' => \lan143\yii2_yandexturbo\YandexTurboBehavior::class,
+                        'scope' => function (\yii\db\ActiveQuery $query) {
+                            $query->orderBy(['created_at' => SORT_DESC]);
+                        },
+                        'dataClosure' => function (\app\models\Records $model) {
+                            return [
+                                'title' => $model->title,
+                                'link' => \yii\helpers\Url::to(['records/view', 'id' => $model->id], true),
+                                'description' => $model->description,
+                                'content' => $model->content,
+                                'pubDate' => (new \DateTime($this->created_at))->format(\DateTime::RFC822),
+                            ];
+                        }
                     ],
                 ],
             ],
