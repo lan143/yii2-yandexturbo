@@ -147,7 +147,7 @@ class YandexTurbo extends Module
                 } else {
                     $items[] = [
                         'title' => ArrayHelper::getValue($element, 'title'),
-                        'link' => ArrayHelper::getValue($element, 'link'),
+                        'link' => Url::to(ArrayHelper::getValue($element, 'link'), true),
                         'description' => ArrayHelper::getValue($element, 'description'),
                         'content' => ArrayHelper::getValue($element, 'content'),
                         'pubDate' => ArrayHelper::getValue($element, 'pubDate'),

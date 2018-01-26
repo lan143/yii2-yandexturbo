@@ -77,7 +77,7 @@ Configuration
             // or configure static content
             [
                 'title' => 'About page',
-                'link' => '/about',
+                'link' => ['/about'],
                 'description' => 'This is about page',
                 'content' => 'Some content of about page, will be displayed in Yandex Turbo page',
                 'pubDate' => (new \DateTime('2018-01-26 18:57:00'))->format(\DateTime::RFC822)
