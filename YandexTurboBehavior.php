@@ -69,6 +69,8 @@ class YandexTurboBehavior extends Behavior
                 'link' => ArrayHelper::getValue($data, 'link'),
                 'description' => ArrayHelper::getValue($data, 'description'),
                 'content' => ArrayHelper::getValue($data, 'content'),
+                'backgroundImage' => ArrayHelper::getValue($data, 'backgroundImage'),
+                'menuLinks' => ArrayHelper::getValue($data, 'menuLinks'),
                 'pubDate' => ArrayHelper::getValue($data, 'pubDate'),
             ];
         }

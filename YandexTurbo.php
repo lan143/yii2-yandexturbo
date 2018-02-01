@@ -9,6 +9,7 @@ use yii\base\InvalidConfigException;
 use yii\base\Module;
 use yii\caching\Cache;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 /**
@@ -150,6 +151,8 @@ class YandexTurbo extends Module
                         'link' => Url::to(ArrayHelper::getValue($element, 'link'), true),
                         'description' => ArrayHelper::getValue($element, 'description'),
                         'content' => ArrayHelper::getValue($element, 'content'),
+                        'backgroundImage' => ArrayHelper::getValue($element, 'backgroundImage'),
+                        'menuLinks' => ArrayHelper::getValue($element, 'menuLinks'),
                         'pubDate' => ArrayHelper::getValue($element, 'pubDate'),
                     ];
 
@@ -234,7 +237,34 @@ class YandexTurbo extends Module
             $itemContentNode = $doc->createElement("turbo:content");
             $itemNode->appendChild($itemContentNode);
 
-            $contentWrapper = $doc->createCDATASection($element['content']);
+            $content = $element['content'];
+
+            if ($element['backgroundImage'] !== null) {
+                $header = Html::beginTag('header')
+                    . Html::beginTag('figure')
+                    . Html::img(Url::to($element['backgroundImage'], true))
+                    . Html::endTag('figure')
+                    . Html::tag('h1', $element['title'])
+                    . Html::endTag('header');
+
+                $content = $header . $content;
+            }
+
+            if ($element['menuLinks'] !== null && is_array($element['menuLinks'])) {
+                $menu = Html::beginTag('menu');
+
+                foreach ($element['menuLinks'] as $name => $url) {
+                    $menu .= Html::tag('a', $name, [
+                        'href' => Url::to($url, true)
+                    ]);
+                }
+
+                $menu .= Html::endTag('menu');
+
+                $content = $content . $menu;
+            }
+
+            $contentWrapper = $doc->createCDATASection($content);
             $itemContentNode->appendChild($contentWrapper);
 
             $itemPubDateNode = $doc->createElement("pubDate", $element['pubDate']);
