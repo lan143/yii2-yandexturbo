@@ -253,9 +253,9 @@ class YandexTurbo extends Module
             if ($element['menuLinks'] !== null && is_array($element['menuLinks'])) {
                 $menu = Html::beginTag('menu');
 
-                foreach ($element['menuLinks'] as $name => $url) {
-                    $menu .= Html::tag('a', $name, [
-                        'href' => Url::to($url, true)
+                foreach ($element['menuLinks'] as $link) {
+                    $menu .= Html::tag('a', ArrayHelper::getValue($link, 'label'), [
+                        'href' => Url::to(ArrayHelper::getValue($link, 'url'), true)
                     ]);
                 }
 

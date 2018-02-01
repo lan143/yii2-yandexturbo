@@ -66,6 +66,13 @@ Configuration
                                 'link' => \yii\helpers\Url::to(['records/view', 'id' => $model->id], true),
                                 'description' => $model->description,
                                 'content' => $model->content,
+                                'backgroundImage' => $model->background_image,
+                                'menuLinks' => [
+                                    [
+                                        'label' => 'Home',
+                                        'url' => \yii\helpers\Url::home(true),
+                                    ],
+                                ],
                                 'pubDate' => (new \DateTime($this->created_at))->format(\DateTime::RFC822),
                             ];
                         }
@@ -78,7 +85,14 @@ Configuration
                 'link' => ['/about'],
                 'description' => 'This is about page',
                 'content' => 'Some content of about page, will be displayed in Yandex Turbo page. You can use <strong>html<strong> tags.',
-                'pubDate' => (new \DateTime('2018-01-26 18:57:00'))->format(\DateTime::RFC822)
+                'backgroundImage' => \yii\helpers\Url::to(['/images/background.jpg'], true),
+                'menuLinks' => [
+                    [
+                        'label' => 'Home',
+                        'url' => \yii\helpers\Url::home(true),
+                    ],
+                ],
+                'pubDate' => (new \DateTime('2018-01-26 18:57:00'))->format(\DateTime::RFC822),
             ],
         ],
         'cacheExpire' => 1, // 1 second. Default is 15 minutes
